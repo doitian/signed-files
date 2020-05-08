@@ -1,0 +1,21 @@
+name: Verify
+
+on: [ push, pull_request ]
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Import Key
+      run: |
+        curl -L 'https://keys.openpgp.org/vks/v1/by-fingerprint/4242AB6F6CF6226860D0B8DAABE9D4638BEFB78D' | gpg --import
+
+    - uses: actions/checkout@v2
+
+    - name: Verify
+      run: |
+        bin/verify-all
