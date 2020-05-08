@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -e
+set -u
+[ -n "${DEBUG:-}" ] && set -x || true
+
+readarray -t files < <(find . -name .git -prune -false -o -type f -not -name '.*')
+for f in "${files[@]}"; do
+  if [[ "$f" != *.asc || ! -f "${f%.asc}" ]]; then
+    echo "==> verify \`$f'"
+    gpg --verify --status-fd 1 "$f.asc" | grep '^\[GNUPG:\] GOODSIG'
+  fi
+done

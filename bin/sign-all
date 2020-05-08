@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -e
+set -u
+[ -n "${DEBUG:-}" ] && set -x || true
+
+KEYID=0x32E62CE7
+
+readarray -t files < <(find . -name .git -prune -false -o -type f -not -name '.*')
+for f in "${files[@]}"; do
+  if [[ "$f" != *.asc || ! -f "${f%.asc}" ]]; then
+    echo "==> sign \`$f'"
+    if ! [ -f "$f.asc" ] || ! gpg --verify --status-fd 1 "$f.asc" 2> /dev/null | grep -q '^\[GNUPG:\] GOODSIG'; then
+      gpg -u $KEYID -sab --yes "$f"
+    fi
+  fi
+done
